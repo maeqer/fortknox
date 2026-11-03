@@ -1,0 +1,41 @@
+---
+description: Fort Knox Home Assistant standing context and working rules
+alwaysApply: true
+---
+
+# Fort Knox / Home Assistant
+
+Repo is for configuring the house HA via Cursor. Prefer live MCP over guessing. Before HA config writes, load `ha_get_skill_guide` (ha-mcp).
+
+## Access
+- HA LAN: `http://192.168.1.130:8123` (also `homeassistant.local`)
+- MCP: `home-assistant` (Assist intents) + `ha-mcp` (config). Auth via Windows env `HA_TOKEN`. `.cursor/mcp.json` is gitignored.
+- Use **ha-mcp** for automations/helpers/dashboards/renames; builtin MCP only for simple on/off/climate/todo.
+
+## House
+- Floors: **BG** (Meterkast, Hal BG, Toilet/`entree`, Keuken, Studio, Berging) · **V1** (Kantoor, Hal V1, Slaapkamer Ben, Badkamer Ben, Lounge) · **V2** (Slaapkamer)
+- People: Mathijs, Patricia
+- Areas = organization (dashboards/Assist), **not** control wiring
+
+## Climate architecture
+- **Floor heat (slow, concrete):** Versatile Thermostat + SmartPI on zone valves → `climate.<kamer>_vv` + `switch.<kamer>_klepmotor`
+- **Daikin (fast):** separate layer → mostly `climate.*_room_temperature`; do not drive floor valves through Daikin
+- Prefer Sonoff room sensors for room temp where VT/helpers need a sensor
+- **ZW glass / solar gain:** Keuken, Lounge, Badkamer Ben — expect fast rises; tune per room
+- **WTW + HomeVap (humidity):** separate automations/helpers, not inside VT
+- CV pump with zone valves: prefer **Constant Pressure AUTOADAPT** (can be noisier than proportional)
+- Existing automation: airco off when manual setpoint changed
+
+## Zigbee / lights
+- SkyConnect = **ZHA** (Sonoff, kleppen, …)
+- Keep **Hue Bridge** for ~100 Hue lamps/strips — do not mass re-pair to ZHA
+- Innr on Hue can lag/shallow-dim; only migrate problem lamps to ZHA if needed
+
+## Dashboards
+- `fort-knox` (was `villa-baalie`) — e.g. `/fort-knox/vloerverwarming`
+- `fortknox-hq` — Mushroom cards, theme **Mushroom Shadow** (dark)
+
+## Working habits
+- Dutch user; keep answers short
+- Don’t invent entity IDs — search HA first
+- Don’t dump live inventories into docs; update **this rule** only when a standing decision changes
