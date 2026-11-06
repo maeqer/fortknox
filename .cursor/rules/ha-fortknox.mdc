@@ -13,18 +13,28 @@ Repo is for configuring the house HA via Cursor. Prefer live MCP over guessing. 
 - Use **ha-mcp** for automations/helpers/dashboards/renames; builtin MCP only for simple on/off/climate/todo.
 
 ## House
-- Floors: **BG** (Meterkast, Hal BG, Toilet/`entree`, Keuken, Studio, Berging) · **V1** (Kantoor, Hal V1, Slaapkamer Ben, Badkamer Ben, Lounge) · **V2** (Slaapkamer)
+- Floors: **BG** (Meterkast, Hal BG, Toilet/`entree`, Keuken, Studio, Berging) · **V1** (Kantoor, Hal V1, Slaapkamer Ben, Badkamer Ben, Lounge) · **V2** (Slaapkamer, Grote badkamer)
 - People: Mathijs, Patricia
 - Areas = organization (dashboards/Assist), **not** control wiring
 
 ## Climate architecture
 - **Floor heat (slow, concrete):** Versatile Thermostat + SmartPI on zone valves → `climate.<kamer>_vv` + `switch.<kamer>_klepmotor`
+- **VV groepen (verdeler):** Lounge 4 · Keuken 4 · Kantoor 1 · Slaapkamer Ben 1 · Badkamer Ben 1 · Studio 1 · Berging 1 · Toilet/hal 1 (=14). Later: Grote badkamer 2 · Slaapkamer (V2) 2. Energie-aandeel ≈ groepen × klep-duty (geen flowmeters)
 - **Daikin (fast):** separate layer → mostly `climate.*_room_temperature`; do not drive floor valves through Daikin
 - Prefer Sonoff room sensors for room temp where VT/helpers need a sensor
-- **ZW glass / solar gain:** Keuken, Lounge, Badkamer Ben — expect fast rises; tune per room
+- **ZW glass / solar gain:** Keuken, Lounge, Grote badkamer — expect fast rises; tune per room
+- **Orientation:** ZW Keuken/Lounge/Grote badkamer · NO Slaapkamer Ben/Kantoor/Slaapkamer · NW Badkamer Ben/Studio · ZO Hal BG · inner/little sun Hal V1/Toilet/Badkamer Ben
 - **WTW + HomeVap (humidity):** separate automations/helpers, not inside VT
 - CV pump with zone valves: prefer **Constant Pressure AUTOADAPT** (can be noisier than proportional)
-- Existing automation: airco off when manual setpoint changed
+- **VV temp heartbeat (mandatory):** Sonoff SNZB-02P = temp change-only → VT safety false-trips. Every VV zone needs `sensor.<kamer>_temp_voor_vv` (template depending on temp + RH) and VT must use that as `temperature_sensor_entity_id`. Restore humidity + outdoor (`sensor.adam_outdoor_temperature`) after VT options rewrite. Example: `climate.toilet_hal_vv` → `sensor.toilet_hal_temp_voor_vv`.
+- **Zonrem:** `automation.vv_zonrem_zw` — Mon–Sat, Forecast.Solar `sensor.zon_zw_vandaag` ≥ `input_number.zonrem_drempel` → 07:00 ZW zones to `input_number.zonrem_temperatuur`; comfort again when room >19.4 after 10:00, latest 13:00. Gate: SmartPI `stable` + preset comfort. Zones: Lounge, Keuken, Grote badkamer. Sunday none. Night stays comfort; FF3 on
+- VT lock off on all VV zones (`lock_users`/`lock_automations` false); same for new zones
+- **New VV rooms:** apply template + VT rewire immediately (HA cannot do that from stock automations). Vangnet automations: `vv_safety_bypass_bij_levende_rh_alle_zones` + `vv_mist_temp_voor_vv_heartbeat`.
+
+## Naming
+- Devices bare (`Temperatuursensor`, `Klepmotor`); room via area
+- Entities `<kamer>_<rol>`: `sensor.<kamer>_temperatuur|_vochtigheid`, `switch.<kamer>_klepmotor`; diagnostics `<kamer>_temperatuursensor_<x>` / `<kamer>_klepmotor_<x>`
+- Areas point temp/humidity at the room sensor
 
 ## Zigbee / lights
 - SkyConnect = **ZHA** (Sonoff, kleppen, …)
