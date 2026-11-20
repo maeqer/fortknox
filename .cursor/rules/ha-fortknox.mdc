@@ -19,12 +19,12 @@ Repo is for configuring the house HA via Cursor. Prefer live MCP over guessing. 
 
 ## Climate architecture
 - **Floor heat (slow, concrete):** Versatile Thermostat + SmartPI on zone valves → `climate.<kamer>_vv` + `switch.<kamer>_klepmotor`
-- **VV groepen (verdeler):** Lounge 4 · Keuken 4 · Kantoor 1 · Slaapkamer Ben 1 · Badkamer Ben 1 · Studio 1 · Berging 1 · Toilet/hal 1 (=14). Later: Grote badkamer 2 · Slaapkamer (V2) 2. Energie-aandeel ≈ groepen × klep-duty (geen flowmeters)
+- **VV groepen (verdeler):** Lounge 4 · Keuken 4 · Grote badkamer 2 · Slaapkamer 2 · Kantoor 1 · Slaapkamer Ben 1 · Badkamer Ben 1 · Studio 1 · Berging 1 · Toilet/hal 1 (=18). Energie-aandeel ≈ groepen × klep-duty (geen flowmeters)
 - **Daikin (fast):** separate layer → mostly `climate.*_room_temperature`; do not drive floor valves through Daikin
 - Prefer Sonoff room sensors for room temp where VT/helpers need a sensor
 - **ZW glass / solar gain:** Keuken, Lounge, Grote badkamer — expect fast rises; tune per room
 - **Orientation:** ZW Keuken/Lounge/Grote badkamer · NO Slaapkamer Ben/Kantoor/Slaapkamer · NW Badkamer Ben/Studio · ZO Hal BG · inner/little sun Hal V1/Toilet/Badkamer Ben
-- **WTW + HomeVap (humidity):** separate automations/helpers, not inside VT
+- **WTW vocht:** `automation.wtw_vocht_aan` → `script.wtw_vocht_boost_naar_stand3` (`met_boost`) + `automation.wtw_vocht_uit` (trigger-ruimtes &lt; `wtw_rh_herstel_drempel` **55%** / 15′). **Drie paden:** rise in natte zones (Δ≥stap + RH≥`wtw_rh_stijging_vloer` **50%**) → één boost 15′→stand 3; `sensor.woonruimte_max_vochtigheid` ≥ `wtw_rh_hoog_drempel` **60%** / 2′ → stand 3; ≥ `wtw_rh_extreem_drempel` **65%** / 2′ → één boost. Geen herhaalde boost — stand 3 blijft tot herstel. **Vals alarm:** (a) &lt;50% / 2′ → `wtw_vocht_vals_alarm`; (b) 10′ na start nog &lt;55% → `wtw_vocht_vals_alarm_geen_hoogte`. Woonruimte-max incl. berging (was). Natte zones (rise): grote badkamer, badkamer Ben, keuken, toilet. **Vlag mag niet blokkeren** (script `restart`). Trigger-ruimtes: `input_text.wtw_vocht_trigger_ruimtes` → `sensor.wtw_vocht_trigger_max`. **Sessie vrijgeven:** echte daling fanstand ≥3 → ≤2 → `automation.wtw_vocht_sessie_vrij_bij_stand2` (negeert Smarty unavailable→66). HomeVap: eigen automations, niet in VT
 - CV pump with zone valves: prefer **Constant Pressure AUTOADAPT** (can be noisier than proportional)
 - **VV temp heartbeat (mandatory):** Sonoff SNZB-02P = temp change-only → VT safety false-trips. Every VV zone needs `sensor.<kamer>_temp_voor_vv` (template depending on temp + RH) and VT must use that as `temperature_sensor_entity_id`. Restore humidity + outdoor (`sensor.adam_outdoor_temperature`) after VT options rewrite. Example: `climate.toilet_hal_vv` → `sensor.toilet_hal_temp_voor_vv`.
 - **Zonrem:** `automation.vv_zonrem_zw` — Mon–Sat, Forecast.Solar `sensor.zon_zw_vandaag` ≥ `input_number.zonrem_drempel` → 07:00 ZW zones to `input_number.zonrem_temperatuur`; comfort again when room >19.4 after 10:00, latest 13:00. Gate: SmartPI `stable` + preset comfort. Zones: Lounge, Keuken, Grote badkamer. Sunday none. Night stays comfort; FF3 on
@@ -36,14 +36,28 @@ Repo is for configuring the house HA via Cursor. Prefer live MCP over guessing. 
 - Entities `<kamer>_<rol>`: `sensor.<kamer>_temperatuur|_vochtigheid`, `switch.<kamer>_klepmotor`; diagnostics `<kamer>_temperatuursensor_<x>` / `<kamer>_klepmotor_<x>`
 - Areas point temp/humidity at the room sensor
 
-## Zigbee / lights
-- SkyConnect = **ZHA** (Sonoff, kleppen, …)
+## Zigbee / Thread / Matter
+- SkyConnect/ZBT-1 `…6a7142…` = **ZHA** (Sonoff, kleppen, …) — never flash this stick for Thread
+- Second ZBT-1 `…7abedcf…` = **OTBR** OpenThread RCP (`core_openthread_border_router`); Thread net `ha-thread-0434`; REST `http://core-openthread-border-router:8081` (integratie `otbr`)
+- Matter Server app + Matter-integratie loaded; Nuki Ultra pairen via Matter/Thread (fysiek, morgen)
 - Keep **Hue Bridge** for ~100 Hue lamps/strips — do not mass re-pair to ZHA
 - Innr on Hue can lag/shallow-dim; only migrate problem lamps to ZHA if needed
 
+## CCTV (Hikvision)
+- NVR: **DS-7608NXI-K2/8P** @ `192.168.1.193` (8-ch AcuSense PoE)
+- Camera (o.a. Voortuin): **DS-2CD2387G2H-LIU** zwart 2.8mm (AcuSense / ColorVu hybrid)
+- Channels: 1 Voortuin · 2 Zijgevel voor · 3 Zijgevel achter · 4 Achtertuin · 5 Parkeerplaats · **6 Deurbel** (`192.168.1.194`, manual)
+- Deurbel: **DS-KV6124-WBE1** @ `192.168.1.194` — NVR ch6 (continue opname) + Frigate `camera.deurbel` direct (RTSP + ISAPI 2-weg); zone `stoep`. Hik-Connect gebonden. Nuki Ultra nog niet in HA (Matter/Thread gepland)
+- **Detectie-pad: Frigate Full Access** (`ccab4aaf_frigate-fa` 0.18) + HA-integratie — Hikvision smart events uit; NVR blijft recorder + RTSP-bron (camera’s 1–5)
+- Streams: main ~4K H.265 (record); sub ~640×480 **H.264** (Frigate detect). OpenVINO **GPU** + VAAPI via Proxmox iGPU PCI passthrough (`0000:00:02.0` → HA VM 100; `/dev/dri/renderD128`). Protection mode Frigate FA staat **uit**.
+- Cameras: `camera.voortuin` · `zijgevel_voor` · `zijgevel_achter` · `achtertuin` · `parkeerplaats` · `deurbel`
+- Zones (alerts): Voortuin `terrein` · Zij voor `pad` · Zij achter `erf` · Achtertuin `terras` · Parkeerplaats `parkeren` · Deurbel `stoep`. Detect fps 5. Face + LPR aan (LPR actief op Voortuin + Parkeerplaats).
+- Meldingen: `automation.frigate_persoon_melding` + `automation.frigate_auto_melding` (nacht óf niemand thuis). Legacy `automation.camera_line_crossing_melding` staat uit.
+- Camera-UI: alleen **`/fort-knox/camera-s`** — deurbel bovenaan + `picture-entity` (camera_view auto, 16:9 cover) + detectie-tiles; geen ACC-grid (te zwaar/instabiel op mobiel). Tik camera → more-info voor live.
+
 ## Dashboards
-- `fort-knox` (was `villa-baalie`) — e.g. `/fort-knox/vloerverwarming`
-- `fortknox-hq` — Mushroom cards, theme **Mushroom Shadow** (dark)
+- **Actief (enige):** `fort-knox` (was `villa-baalie`) — bv. `/fort-knox/vloerverwarming`, `/fort-knox/camera-s`. Alle dashboard-wijzigingen hier.
+- `fortknox-hq` — **niet in gebruik**; niet onderhouden tenzij Mathijs anders vraagt
 
 ## Working habits
 - Dutch user; keep answers short
