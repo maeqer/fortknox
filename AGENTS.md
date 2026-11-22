@@ -57,6 +57,13 @@ People: Mathijs, Patricia.
 - Meldingen: `automation.frigate_persoon_melding` + `automation.frigate_auto_melding` (nacht óf niemand thuis). Legacy `automation.camera_line_crossing_melding` staat uit.
 - Camera-UI: alleen **`/fort-knox/camera-s`** — deurbel bovenaan + `picture-entity` (camera_view auto, 16:9 cover) + detectie-tiles; geen ACC-grid (te zwaar/instabiel op mobiel). Tik camera → more-info voor live.
 
+## Netwerk (meterkast)
+- **Huidig (organisch gegroeid):** KPN glasvezel-NTU → **KPN Experia Box 12** → **UniFi Cloud Gateway Ultra** (UCG Ultra, 1× 2.5G WAN + 4× 1G LAN) → **USW-8-150W** + **USW Flex Mini** met losse 1-poorts PoE-injector. Kleine wand-patchkast in de meterkast.
+- **Bedrade apparaten:** 5× U7 Pro (PoE+, 2.5G uplink, via patchkast) · 2× Hue Bridge · Home Assistant (Proxmox-host) · laadpaal · Plugwise Adam · Salda WTW-gateway · Enphase IQ Gateway (nu waarschijnlijk wifi, heeft wel RJ45) · Hikvision NVR DS-7608NXI-K2/8P (camera’s 1–5 op eigen PoE-poorten van de NVR) · deurbel DS-KV6124-WBE1 · 7 extra kabels patchkast → woning (nu niet aangesloten/gevoed)
+- **Behoefte:** ±22 poorten (5 PoE+ voor AP’s, rest grotendeels data; extra kabels liefst PoE) + ruimte voor uitbreiding
+- **Plan (nog niet uitgevoerd):** USW-8-150W + Flex Mini + injector vervangen door één **USW Pro Max 24 PoE** (8× 2.5G PoE++ voor de U7 Pro’s, 16× 1G PoE+, 2× 10G SFP+, 400 W). UCG Ultra blijft zolang het abonnement ≤1 Gbit is; bij sneller → **UCG Fiber**. Experia alleen houden voor KPN-tv/vaste telefonie; anders UCG direct op de NTU (KPN internet = VLAN 6, PPPoE).
+- **VLAN-plan:** Main · IoT (Hue, Adam, WTW, Enphase, laadpaal) · Camera (NVR, deurbel) · HA bereikt IoT + Camera
+
 ## Dashboards
 - **Actief (enige):** `/fort-knox/…` — alle dashboard-wijzigingen hier
 - `/fortknox-hq/…` — **niet in gebruik**; niet onderhouden tenzij Mathijs anders vraagt
