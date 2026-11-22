@@ -57,9 +57,9 @@ Repo is for configuring the house HA via Cursor. Prefer live MCP over guessing. 
 
 ## Netwerk (meterkast)
 - **Huidig (organisch gegroeid):** KPN glasvezel-NTU → **KPN Experia Box 12** → **UniFi Cloud Gateway Ultra** (UCG Ultra, 1× 2.5G WAN + 4× 1G LAN) → **USW-8-150W** + **USW Flex Mini** met losse 1-poorts PoE-injector. Kleine wand-patchkast in de meterkast.
-- **Bedrade apparaten:** 5× U7 Pro (PoE+, 2.5G uplink, via patchkast) · 2× Hue Bridge · Home Assistant (Proxmox-host) · laadpaal · Plugwise Adam · Salda WTW-gateway · Enphase IQ Gateway (nu waarschijnlijk wifi, heeft wel RJ45) · Hikvision NVR DS-7608NXI-K2/8P (camera’s 1–5 op eigen PoE-poorten van de NVR) · deurbel DS-KV6124-WBE1 · 7 extra kabels patchkast → woning (nu niet aangesloten/gevoed)
-- **Behoefte:** ±22 poorten (5 PoE+ voor AP’s, rest grotendeels data; extra kabels liefst PoE) + ruimte voor uitbreiding
-- **Plan (nog niet uitgevoerd):** USW-8-150W + Flex Mini + injector vervangen door één **USW Pro Max 24 PoE** (8× 2.5G PoE++ voor de U7 Pro’s, 16× 1G PoE+, 2× 10G SFP+, 400 W). UCG Ultra blijft zolang het abonnement ≤1 Gbit is; bij sneller → **UCG Fiber**. Experia alleen houden voor KPN-tv/vaste telefonie; anders UCG direct op de NTU (KPN internet = VLAN 6, PPPoE).
+- **Bedrade apparaten:** 5× U7 Pro (PoE+, 2.5G uplink, via patchkast) · 2× Hue Bridge · Home Assistant (Proxmox-host) · laadpaal · Plugwise Adam · Salda WTW-gateway · Enphase IQ Gateway (nu waarschijnlijk wifi, heeft wel RJ45) · Hikvision NVR DS-7608NXI-K2/8P (camera’s 1–5 op eigen PoE-poorten van de NVR) · deurbel DS-KV6124-WBE1 (PoE) · 7 extra kabels patchkast → woning (nu niet aangesloten/gevoed)
+- **Behoefte:** ±22 poorten (5 PoE+ voor AP’s + deurbel PoE, rest grotendeels data; extra kabels liefst PoE) + ruimte voor uitbreiding
+- **Plan (nog niet uitgevoerd):** USW-8-150W + Flex Mini + injector vervangen door één **USW Pro Max 24 PoE** (8× 2.5G PoE++ voor de U7 Pro’s, 16× 1G PoE+, 2× 10G SFP+, 400 W). UCG Ultra blijft zolang het abonnement ≤1 Gbit is (routeert max ~1 Gbit: internet + inter-VLAN; verkeer binnen één VLAN blijft op de switch); bij sneller → **UCG Fiber**. Experia alleen houden voor KPN-tv/vaste telefonie; anders UCG direct op de NTU (KPN internet = VLAN 6, PPPoE).
 - **VLAN-plan:** Main · IoT (Hue, Adam, WTW, Enphase, laadpaal) · Camera (NVR, deurbel) · HA bereikt IoT + Camera
 
 ## Dashboards
