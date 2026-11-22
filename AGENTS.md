@@ -42,14 +42,14 @@ People: Mathijs, Patricia.
 ## Zigbee / Thread / Matter
 - ZHA on ZBT-1 `…6a7142…` (Sonoff/kleppen) — niet flashen voor Thread
 - OTBR on tweede ZBT-1 `…7abedcf…`; Thread `ha-thread-0434`; URL `http://core-openthread-border-router:8081`
-- Matter Server + otbr-integratie; Nuki Ultra nog fysiek Matter-pairen
+- Matter Server + OTBR blijven beschikbaar; **Nuki Smart Lock Pro 4** → **MQTT over wifi** (niet Matter). Mosquitto + MQTT-integratie actief
 - Hue Bridge blijft voor mass Hue lighting
 
 ## CCTV (Hikvision)
 - NVR: **DS-7608NXI-K2/8P** @ `192.168.1.193` (8-ch AcuSense PoE)
 - Camera (o.a. Voortuin): **DS-2CD2387G2H-LIU** zwart 2.8mm (AcuSense / ColorVu hybrid)
 - Channels: 1 Voortuin · 2 Zijgevel voor · 3 Zijgevel achter · 4 Achtertuin · 5 Parkeerplaats · **6 Deurbel** (`192.168.1.194`, manual)
-- Deurbel: **DS-KV6124-WBE1** @ `192.168.1.194` — NVR ch6 (continue opname) + Frigate `camera.deurbel` direct (RTSP + ISAPI 2-weg); zone `stoep`. Hik-Connect gebonden. Nuki Ultra nog niet in HA (Matter/Thread gepland)
+- Deurbel: **DS-KV6124-WBE1** @ `192.168.1.194` — NVR ch6 (continue opname) + Frigate `camera.deurbel` direct (RTSP + ISAPI 2-weg); zone `stoep`. Hik-Connect gebonden. Nuki Pro 4: MQTT (wifi) i.p.v. Matter
 - **Detectie-pad: Frigate Full Access** (`ccab4aaf_frigate-fa` 0.18) + HA-integratie — Hikvision smart events uit; NVR blijft recorder + RTSP-bron (camera’s 1–5)
 - Streams: main ~4K H.265 (record); sub ~640×480 **H.264** (Frigate detect). OpenVINO **GPU** + VAAPI via Proxmox iGPU PCI passthrough (`0000:00:02.0` → HA VM 100; `/dev/dri/renderD128`). Protection mode Frigate FA staat **uit**.
 - Cameras: `camera.voortuin` · `zijgevel_voor` · `zijgevel_achter` · `achtertuin` · `parkeerplaats` · `deurbel`
