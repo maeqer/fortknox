@@ -52,7 +52,7 @@ Repo is for configuring the house HA via Cursor. Prefer live MCP over guessing. 
 - Streams: main ~4K H.265 (record); sub ~640×480 **H.264** (Frigate detect). OpenVINO **GPU** + VAAPI via Proxmox iGPU PCI passthrough (`0000:00:02.0` → HA VM 100; `/dev/dri/renderD128`). Protection mode Frigate FA staat **uit**.
 - Cameras: `camera.voortuin` · `zijgevel_voor` · `zijgevel_achter` · `achtertuin` · `parkeerplaats` · `deurbel`
 - Zones (alerts): Voortuin `terrein` · Zij voor `pad` · Zij achter `erf` · Achtertuin `terras` · Parkeerplaats `parkeren` · Deurbel `stoep`. Detect fps 5. Face + LPR aan (LPR actief op Voortuin + Parkeerplaats).
-- Meldingen: `automation.frigate_persoon_melding` + `automation.frigate_auto_melding` (nacht óf niemand thuis). Legacy `automation.camera_line_crossing_melding` staat uit.
+- Meldingen: `input_select.camera_meldingen` — **Nacht** = 22:00–06:30 (`automation.frigate_persoon_melding` + `automation.frigate_auto_melding` + push in `automation.deurbel_persoon`); **Altijd** (vakantie); **Uit**. Legacy `automation.camera_line_crossing_melding` staat uit.
 - Camera-UI: alleen **`/fort-knox/camera-s`** — deurbel bovenaan + `picture-entity` (camera_view auto, 16:9 cover) + detectie-tiles; geen ACC-grid (te zwaar/instabiel op mobiel). Tik camera → more-info voor live.
 
 ## Netwerk (meterkast)
